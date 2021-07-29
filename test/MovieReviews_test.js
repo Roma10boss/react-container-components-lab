@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import Enzyme, { shallow, mount } from 'enzyme';
+import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import MovieReviews from '../src/components/MovieReviews';
 import testReviews from './test-reviews';
@@ -9,23 +9,12 @@ Enzyme.configure({ adapter: new Adapter() })
 
 const Noop = (props) => { return <p>Noop</p> };
 
-function isStateless(Component) {
-  return !Component.prototype.render;
-}
-
 describe('<MovieReviews />', () => {
   let wrapper;
 
   beforeEach(() => {
-    if (!MovieReviews.prototype) {
-      wrapper = shallow(<Noop />)
-    } else {
-      if (isStateless(MovieReviews)) {
-        wrapper = shallow(<MovieReviews reviews={testReviews} />)
-      } else {
-        wrapper = mount(<MovieReviews reviews={testReviews} />)
-      }
-    }
+    wrapper = !MovieReviews.prototype ?
+      shallow(<Noop />) : shallow(<MovieReviews reviews={testReviews} />);
   });
 
   it('should be a stateless functional component', () => {
@@ -37,11 +26,18 @@ describe('<MovieReviews />', () => {
     );
   });
 
+  it('should have defaultProp "reviews"', () => {
+    const defaultProps = MovieReviews.defaultProps;
+    expect(defaultProps, 'defaultProps is not defined.').to.exist;
+    expect(defaultProps).to.have.key('reviews');
+  });
+
   it('should have a top-level component with class "review-list"', () => {
     expect(wrapper.hasClass('review-list')).to.be.true;
   });
 
   it('should render all the reviews', () => {
+    console.log(wrapper);
     expect(wrapper.find('.review').length).to.equal(testReviews.length);
   });
 });
